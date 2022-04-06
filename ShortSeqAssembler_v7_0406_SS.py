@@ -1,7 +1,11 @@
 """
-Fast Assembler (with) Sequences (of) Vaccine RNAseq
-FASVrna
-(EDIT)
+Grep Assembler for Short Reads (GASR)
+
+See GitHub repository for usage details.
+
+Written by Dae-Eun Jeong and Sameer Sundrani
+Stanford University, Fire Lab
+
 """
 import sys
 import os
@@ -14,8 +18,13 @@ from datetime import datetime
 import argparse
 
 
-
 def preprocess(input, trim=False):
+    """
+
+    :param input: takes in a path to two fastq files
+    :param trim: boolean, set to True to run
+    :return: None
+    """
     if trim:
         try:
             cmd = 'python preprocess.py ' + input
@@ -24,6 +33,11 @@ def preprocess(input, trim=False):
             print("Error with input format")
 
 def right_extender(rightseqs):
+    """
+
+    :param rightseqs: List of right sequences to extend
+    :return: List of positions
+    """
     Position_list = [[0, 0, 0, 0, 0] for k in range(len(max(rightseqs, key=len)))]
     for rightseq in rightseqs:
         for i in range(len(rightseq)):
@@ -47,6 +61,11 @@ def right_extender(rightseqs):
     return Position_list
 
 def left_extender(leftseqs):
+    """
+
+    :param leftseqs: List of left sequences to extend
+    :return: List of positions
+    """
     Left_Position_list = [[0, 0, 0, 0, 0] for k in range(len(max(leftseqs, key=len)))]
     for leftseq in leftseqs:
         for i in range(len(leftseq) + 1):
@@ -74,6 +93,14 @@ def left_extender(leftseqs):
     return Left_Position_list
 
 def extension(file, nmer, searchseq, direction = 'R'):
+    """
+    Main function for extension =
+    :param file: input file that we will grep
+    :param nmer: length of sequence to extend / grep with
+    :param searchseq: the sequence to search
+    :param direction: Left or Right extension
+    :return: new_searchseq, Gainedseq[5:], Probability_position[5:], Left_Position_list[5:]
+    """
     nucleotide = ["A", "T", "C", "G", "N"]
     with open(file) as f:
         seqlines = [seqline.strip() for seqline in f]
@@ -131,123 +158,15 @@ def extension(file, nmer, searchseq, direction = 'R'):
 
             return new_searchseq, Gainedseq[5:], Probability_position[5:], Left_Position_list[5:]
 
-def right_extension(file, nmer, searchseq):
-
-    with open(file) as f:
-        seqlines = [ seqline.strip() for seqline in f ]
-        rightseqs = []
-
-        for seq in seqlines:
-            index = seq.find(searchseq)
-            rightseq = seq[index+nmer:]
-            rightseqs.append(rightseq)
-    
-        Position_list = [ [0,0,0,0,0] for k in range(len(max(rightseqs, key=len)))]
-    
-        for rightseq in rightseqs:
-            for i in range(len(rightseq)):
-                Acount = 0
-                Tcount = 0
-                Ccount = 0
-                Gcount = 0
-                Ncount = 0
-            
-                if rightseq[i] == "A":
-                    Acount += 1
-                elif rightseq[i] == "T":
-                    Tcount += 1
-                elif rightseq[i] == "C":
-                    Ccount += 1
-                elif rightseq[i] == "G":
-                    Gcount += 1
-                else:
-                    Ncount += 1
-                Position_list[i] = [x+y for x,y in zip(Position_list[i], [Acount, Tcount, Ccount, Gcount, Ncount])]
-
-        Percent_position = [[0,0,0,0,0] for k in range(len(max(rightseqs, key=len)))]
-    
-        Gainedseq = ""
-        Probability_position = []
-        for l in Position_list:
-            probability = [(l[m] / sum(l))*100 for m in range(5)]
-            Probability_position.append(probability)
-            cand = max(probability)
-            ind = probability.index(cand)
-            if cand > 50:
-                Gainedseq = Gainedseq + nucleotide[ind]
-            else:
-                Gainedseq = Gainedseq + "X"
-        new_searchseq = Gainedseq[-(nmer+5):-5]
-
-        if "X" in Gainedseq[:-5]:
-            print('-- reached a stopping point for extension --')
-            raise ValueError
-        
-    return new_searchseq, Gainedseq[:-5], Probability_position[:-5], Position_list[:-5]
-
-def left_extension(file, nmer, Lsearchseq):
-    
-    with open(file) as f:
-        seqlines = [ seqline.strip() for seqline in f ]
-        leftseqs = []
-    
-        for seq in seqlines:
-            index = seq.find(Lsearchseq)
-            leftseq = seq[:index]
-            if index != 0:
-                leftseqs.append(leftseq)
-            else:
-                continue
-        
-        Left_Position_list = [ [0,0,0,0,0] for k in range(len(max(leftseqs, key=len)))]
-    
-        for leftseq in leftseqs:
-            for i in range(len(leftseq)+1):
-                if i != 0:
-                    Acount = 0
-                    Tcount = 0
-                    Ccount = 0
-                    Gcount = 0
-                    Ncount = 0
-                    
-                    if leftseq[-i] == "A":
-                        Acount += 1
-                    elif leftseq[-i] == "T":
-                        Tcount += 1
-                    elif leftseq[-i] == "C":
-                        Ccount += 1
-                    elif leftseq[-i] == "G":
-                        Gcount += 1
-                    else:
-                        Ncount += 1
-                    Left_Position_list[-i] = [x+y for x,y in zip(Left_Position_list[-i], 
-                                                                 [Acount, Tcount, Ccount, Gcount, Ncount])]
-                else:
-                    continue
-        
-        Left_Percent_position = [[0,0,0,0,0] for k in range(len(max(leftseqs, key=len)))]
-    
-        Gainedseq = ""
-        Left_Probability_position = []
-        for l in reversed(Left_Position_list):
-            probability = [(l[m] / sum(l))*100 for m in range(5)]
-            Left_Probability_position.insert(0, probability)
-            cand = max(probability)
-            ind = probability.index(cand)
-        
-            if cand > 50:
-                Gainedseq = nucleotide[ind] + Gainedseq
-            else:
-                Gainedseq = "X" + Gainedseq
-        new_searchseq = Gainedseq[5:(nmer+5)]
-        
-        if "X" in Gainedseq[5:]:
-            print('-- reached a stopping point for extension --')
-            raise ValueError
-    
-    return new_searchseq, Gainedseq[5:], Left_Probability_position[5:], Left_Position_list[5:]
-
 def right_search(inputfile, seedseq, nmer, maxround):
+    """
+
+    :param inputfile: input file that we will grep
+    :param seedseq: seed sequence to create initial extensions from
+    :param nmer: length of sequence to extend / grep with
+    :param maxround: maximum number of extension rounds
+    :return: nt_probability, Reads_position, extendedseq
+    """
     Rsearchseq = seedseq[-nmer:]
     Reads_position = pd.DataFrame(columns = ["A_counts", "T_counts", "C_counts", "G_counts", "N_counts"])
     nt_probability = pd.DataFrame(columns = ["A_percent", "T_percent", "C_percent", "G_percent", "N_percent"])
@@ -311,6 +230,14 @@ def right_search(inputfile, seedseq, nmer, maxround):
     return nt_probability, Reads_position, extendedseq
 
 def left_search(inputfile, seedseq, nmer, maxround):
+    """
+
+    :param inputfile: input file that we will grep
+    :param seedseq: seed sequence to create initial extensions from
+    :param nmer: length of sequence to extend / grep with
+    :param maxround: maximum number of extension rounds
+    :return: Lnt_probability, LReads_position, Lextendedseq
+    """
     Lsearchseq = seedseq[:nmer]
     LReads_position = pd.DataFrame(columns = ["A_counts", "T_counts", "C_counts", "G_counts", "N_counts"])
     Lnt_probability = pd.DataFrame(columns = ["A_percent", "T_percent", "C_percent", "G_percent", "N_percent"])
@@ -375,6 +302,12 @@ def left_search(inputfile, seedseq, nmer, maxround):
     return Lnt_probability, LReads_position, Lextendedseq
 
 def get_nucleotides(input_df, nucleotide):
+    """
+
+    :param input_df: pd dataframe input for getting nucleotide to extend
+    :param nucleotide: list of valid nucleotides
+    :return: list of extended nucleotides
+    """
     NT = []
     for index, rows in input_df.iterrows():
         count_list = [rows.A_counts, rows.T_counts, rows.C_counts, rows.G_counts, rows.N_counts]
@@ -384,6 +317,12 @@ def get_nucleotides(input_df, nucleotide):
     return NT
 
 def plot_figs(final_df, outdir):
+    """
+
+    :param final_df: final results df
+    :param outdir: directory to output results to
+    :return: None
+    """
     seeddf = final_df[final_df["A_counts"].isnull()]
     seeddf = seeddf.reset_index()
     seedstart = seeddf["Position"].iloc[0]
@@ -508,7 +447,7 @@ if __name__=='__main__':
                         help='path to directory to save output files (default is cwd)')
     parser.add_argument('--process_multiple_fastq', type=bool,
                         default=False,
-                        help='True if input files need to be preprocessed. Must input multiple fastq files, unprocesed separated by a space')
+                        help='True if input files need to be preprocessed. Must input multiple fastq files, unprocesed separated by a space (default = False)')
 
     args = parser.parse_args()
     main(args.input, args.seedseq, args.nmer, args.maxround, args.outdir, args.process_multiple_fastq)
