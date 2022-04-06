@@ -48,8 +48,8 @@ The script should take no more than 2-10 minutes to run. We have tested with lar
 
 The leftmost figure displays a metric for confidence in sequence position up- and downstream of your input seed sequence (shown as the black bar). The right rightmost figure displays the number of logFold counts of reads we see in the short read .fastq file for each sequence position up- and downstream of the seed sequence. 
 
-<img src="https://user-images.githubusercontent.com/48189633/162048169-f4bf7dc2-8bbf-40f9-80c2-67235f28665e.png" width=450 align=left>
-<img src="https://user-images.githubusercontent.com/48189633/162048154-c8a38c74-3675-4cdd-a4fe-a47469853a88.png" width=450 align=right>
+<img src="https://user-images.githubusercontent.com/48189633/162048169-f4bf7dc2-8bbf-40f9-80c2-67235f28665e.png" width=400 align=left>
+<img src="https://user-images.githubusercontent.com/48189633/162048154-c8a38c74-3675-4cdd-a4fe-a47469853a88.png" width=400 align=right>
 
 
 
