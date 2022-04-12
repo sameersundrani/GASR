@@ -1,11 +1,11 @@
 # FireLab
 
-# Grep Assembler
+# Grep Assembler for Short Reads - *GASR*
 
 ### For inquiries, contact dejeong@stanford.edu or sundrani@stanford.edu
 
 ### Files
-This repo contains a `preprocess.py` and `{}.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+This repo contains a `preprocess.py` and `GASR.py` for swift assembly of short read sequence datasets given a reference seed sequence.
 
 ### Usage
 
@@ -46,11 +46,10 @@ python ShortSeqAssembler_v7_0406_SS.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.f
 ### Output
 The script should take no more than 2-10 minutes to run. We have tested with large (~1 gb) input files and a variety of test input seed sequences. In the output folder specified (or `cwd` if not), we also output two figures for scrutiny. 
 
-<img src="https://user-images.githubusercontent.com/48189633/162048169-f4bf7dc2-8bbf-40f9-80c2-67235f28665e.png" width=450 align=left>
-<img src="https://user-images.githubusercontent.com/48189633/162048154-c8a38c74-3675-4cdd-a4fe-a47469853a88.png" width=450 align=right>
+The topmost figure displays a metric for confidence in sequence position up- and downstream of your input seed sequence (shown as the black bar). The bottommost figure displays the number of logFold counts of reads we see in the short read .fastq file for each sequence position up- and downstream of the seed sequence. 
 
-
-
+![MaxPercentage_basebybase](https://user-images.githubusercontent.com/48189633/162085089-6e1ff2fb-02b6-4686-a9d6-fcd6f4aa62ce.png)
+![Coverage_basebybase_log10TotalCounts](https://user-images.githubusercontent.com/48189633/162085080-9ac40585-f6bb-40e2-b5ec-df8cc41f6340.png)
 
 
 
