@@ -2,7 +2,7 @@
 
 # Grep Assembler for Short Reads - *GASR*
 
-### For inquiries, contact dejeong@stanford.edu or sundrani@stanford.edu
+### For inquiries, contact dejeong@stanford.edu, sundrani@stanford.edu, or afire@stanford.edu
 
 ### Files
 This repo contains a `preprocess.py` and `GASR.py` for swift assembly of short read sequence datasets given a reference seed sequence.
