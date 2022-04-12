@@ -3,7 +3,7 @@ Grep Assembler for Short Reads (GASR)
 
 See GitHub repository for usage details.
 
-Written by Dae-Eun Jeong and Sameer Sundrani
+Written by Dae-Eun Jeong, Sameer Sundrani, and Andrew Fire
 Stanford University, Fire Lab
 
 """
