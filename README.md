@@ -5,7 +5,7 @@
 ### For inquiries, contact dejeong@stanford.edu or sundrani@stanford.edu
 
 ### Files
-This repo contains a `preprocess.py` and `{}.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+This repo contains a `preprocess.py` and `GASR.py` for swift assembly of short read sequence datasets given a reference seed sequence.
 
 ### Usage
 
