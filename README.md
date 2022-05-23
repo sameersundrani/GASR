@@ -36,11 +36,11 @@ options:
 
 ###### With already trimmed and combined .fastq
 ```
-python GASR_extensionoption.py.py --input 1_Mod500pgMS0pg_S1_L001_R1_001_final_combined.fastq --outdir example_output --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
+python GASR_extensionoption.py --input 1_Mod500pgMS0pg_S1_L001_R1_001_final_combined.fastq --outdir example_output --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
 ```
 ###### With untrimmed pairs of .fastq
 ```
-python GASR_extensionoption.py.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.fastq 1_Mod500pgMS0pg_S1_L001_R2_001.fastq' --outdir example_output --process_multiple_fastq True --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
+python GASR_extensionoption.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.fastq 1_Mod500pgMS0pg_S1_L001_R2_001.fastq' --outdir example_output --process_multiple_fastq True --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
 ```
 
 ### Output
