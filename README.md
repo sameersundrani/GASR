@@ -5,7 +5,9 @@
 ### For inquiries, contact dejeong@stanford.edu, sundrani@stanford.edu, or afire@stanford.edu
 
 ### Files
-This repo contains a `preprocess.py` and `GASR.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+This repo contains a `preprocess.py` and `GASR.py / GASR_extensionoption.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+
+`GASR_extensionoption.py` contains an option `NO_GAP` that allows a user to toggle between adding bases without an nmer gap or with one. Some short read datasets may require the option to be toggled on for the assembler to work properly.
 
 ### Usage
 
