@@ -5,7 +5,9 @@
 ### For inquiries, contact dejeong@stanford.edu, sundrani@stanford.edu, or afire@stanford.edu
 
 ### Files
-This repo contains a `preprocess.py` and `GASR.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+This repo contains a `preprocess.py` and `GASR.py / GASR_extensionoption.py` for swift assembly of short read sequence datasets given a reference seed sequence.
+
+`GASR_extensionoption.py` contains an option `NO_GAP` that allows a user to toggle between adding bases without an nmer gap or with one. Some short read datasets may require the option to be toggled on for the assembler to work properly.
 
 ### Usage
 
@@ -17,8 +19,8 @@ Before running any of the scripts, install the required dependencies from `requi
 
 ##### Script Arguments
 ```
-usage: ShortSeqAssembler_v7_0406_SS.py [-h] [--input INPUT] [--seedseq SEEDSEQ] [--nmer NMER] [--maxround MAXROUND]
-                                       [--outdir OUTDIR] [--process_multiple_fastq PROCESS_MULTIPLE_FASTQ]
+usage: GASR_extensionoption.py [-h] [--input INPUT] [--seedseq SEEDSEQ] [--nmer NMER] [--maxround MAXROUND] [--outdir OUTDIR]
+                               [--process_multiple_fastq PROCESS_MULTIPLE_FASTQ] [--no_gap NO_GAP]
 
 options:
   -h, --help            show this help message and exit
@@ -28,19 +30,19 @@ options:
   --maxround MAXROUND   maximum number of searching rounds (default = 65)
   --outdir OUTDIR       path to directory to save output files (default is cwd)
   --process_multiple_fastq PROCESS_MULTIPLE_FASTQ
-                        True if input files need to be preprocessed. Must input multiple fastq files, unprocesed separated
-                        by a space (default = False)
+                        True if input files need to be preprocessed. Must input multiple fastq files, unprocesed separated by a space (default = False)
+  --no_gap NO_GAP       True if you want to extend without using any gaps (default = False)
 ```
 
 ##### Examples:
 
 ###### With already trimmed and combined .fastq
 ```
-python ShortSeqAssembler_v7_0406_SS.py --input 1_Mod500pgMS0pg_S1_L001_R1_001_final_combined.fastq --outdir example_output --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
+python GASR_extensionoption.py --input 1_Mod500pgMS0pg_S1_L001_R1_001_final_combined.fastq --outdir example_output --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
 ```
 ###### With untrimmed pairs of .fastq
 ```
-python ShortSeqAssembler_v7_0406_SS.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.fastq 1_Mod500pgMS0pg_S1_L001_R2_001.fastq' --outdir example_output --process_multiple_fastq True --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
+python GASR_extensionoption.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.fastq 1_Mod500pgMS0pg_S1_L001_R2_001.fastq' --outdir example_output --process_multiple_fastq True --seedseq GGTTCGACAACCCCGTGCTGCCCTTCAACGACGGCGTGTACTTC
 ```
 
 ### Output
