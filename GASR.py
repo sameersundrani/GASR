@@ -1,11 +1,9 @@
+ 
 """
 Grep Assembler for Short Reads (GASR)
-
 See GitHub repository for usage details.
-
 Written by Dae-Eun Jeong, Sameer Sundrani, and Andrew Fire
 Stanford University, Fire Lab
-
 """
 import sys
 import os
@@ -20,7 +18,6 @@ import argparse
 
 def preprocess(input, trim=False):
     """
-
     :param input: takes in a path to two fastq files
     :param trim: boolean, set to True to run
     :return: None
@@ -34,7 +31,6 @@ def preprocess(input, trim=False):
 
 def right_extender(rightseqs):
     """
-
     :param rightseqs: List of right sequences to extend
     :return: List of positions
     """
@@ -58,11 +54,11 @@ def right_extender(rightseqs):
             else:
                 Ncount += 1
             Position_list[i] = [x + y for x, y in zip(Position_list[i], [Acount, Tcount, Ccount, Gcount, Ncount])]
+        
     return Position_list
 
 def left_extender(leftseqs):
     """
-
     :param leftseqs: List of left sequences to extend
     :return: List of positions
     """
@@ -92,15 +88,17 @@ def left_extender(leftseqs):
                 continue
     return Left_Position_list
 
-def extension(file, nmer, searchseq, direction = 'R'):
+def extension(file, nmer, searchseq, direction = 'R', no_gap = False):
     """
     Main function for extension =
     :param file: input file that we will grep
     :param nmer: length of sequence to extend / grep with
     :param searchseq: the sequence to search
     :param direction: Left or Right extension
+    :param no_gap: mode of using a gap to extend or just highest probability next base
     :return: new_searchseq, Gainedseq[5:], Probability_position[5:], Left_Position_list[5:]
     """
+
     nucleotide = ["A", "T", "C", "G", "N"]
     with open(file) as f:
         seqlines = [seqline.strip() for seqline in f]
@@ -127,18 +125,26 @@ def extension(file, nmer, searchseq, direction = 'R'):
                 Probability_position.append(probability)
                 cand = max(probability)
                 ind = probability.index(cand)
-                if cand > 50:
+                if not no_gap:
+                    if cand > 50:
+                        Gainedseq = Gainedseq + nucleotide[ind]
+                    else:
+                        Gainedseq = Gainedseq + "X"
+                else:  # no_gap == True
                     Gainedseq = Gainedseq + nucleotide[ind]
-                else:
-                    Gainedseq = Gainedseq + "X"
-            new_searchseq = Gainedseq[-(nmer + 5):-5]
 
-            if "X" in Gainedseq[:-5]:
-                print('-- reached a stopping point for extension --')
-                raise ValueError
+            if not no_gap:
+                new_searchseq = Gainedseq[-(nmer + 5):-5]
+                if "X" in Gainedseq[:-5]:
+                    print('-- reached a stopping point for extension --')
+                    raise ValueError
 
-            return new_searchseq, Gainedseq[:-5], Probability_position[:-5], Position_list[:-5]
+                return new_searchseq, Gainedseq[:-5], Probability_position[:-5], Position_list[:-5]
 
+            else: # no_gap == True
+                new_searchseq = Gainedseq[:nmer]
+                return new_searchseq, Gainedseq[:nmer], Probability_position[:nmer], Position_list[:nmer]
+        
         else:  #direction == 'L'
             Left_Position_list = left_extender(seqs)
             for l in reversed(Left_Position_list):
@@ -146,21 +152,29 @@ def extension(file, nmer, searchseq, direction = 'R'):
                 Probability_position.insert(0, probability)
                 cand = max(probability)
                 ind = probability.index(cand)
-                if cand > 50:
-                    Gainedseq = nucleotide[ind] + Gainedseq
+                if not no_gap:
+                    if cand > 50:
+                        Gainedseq = nucleotide[ind] + Gainedseq
+                    else:
+                        Gainedseq = "X" + Gainedseq
                 else:
-                    Gainedseq = "X" + Gainedseq
-            new_searchseq = Gainedseq[5:(nmer + 5)]
+                    Gainedseq = nucleotide[ind] + Gainedseq
 
-            if "X" in Gainedseq[5:]:
-                print('-- reached a stopping point for extension --')
-                raise ValueError
+            if not no_gap:
+                new_searchseq = Gainedseq[5:(nmer + 5)]
+                if "X" in Gainedseq[5:]:
+                    print('-- reached a stopping point for extension --')
+                    raise ValueError
+                return new_searchseq, Gainedseq[5:], Probability_position[5:], Left_Position_list[5:]
 
-            return new_searchseq, Gainedseq[5:], Probability_position[5:], Left_Position_list[5:]
+            else: # no_gap == True
+                new_searchseq = Gainedseq[-nmer:]
+                
+                return new_searchseq, Gainedseq[-nmer:], Probability_position[-nmer:], Left_Position_list[-nmer:]
 
-def right_search(inputfile, seedseq, nmer, maxround):
+
+def right_search(inputfile, seedseq, nmer, maxround, no_gap):
     """
-
     :param inputfile: input file that we will grep
     :param seedseq: seed sequence to create initial extensions from
     :param nmer: length of sequence to extend / grep with
@@ -174,11 +188,10 @@ def right_search(inputfile, seedseq, nmer, maxround):
     extendedseq = ""
     search = True
     a = 1
-
+    print('\n')
     print("Extension from 3 prime of the seed sequence has been started.")
 
     while search == True:
-
         grepcmd = 'seqkit grep -s -P -p ' + Rsearchseq + ' ' + inputfile + ' | seqkit seq -s -o TEMP_seqlist.txt'
         os.system(grepcmd)
         revRsearchseq = str(Seq(Rsearchseq).reverse_complement())
@@ -189,10 +202,10 @@ def right_search(inputfile, seedseq, nmer, maxround):
         with open("TEMP_rev_seqlist.txt") as revlist:
             seqlines = [ seqline.strip() for seqline in revlist ]
             for seq in seqlines:
+                tc += 1
                 seq = Seq(seq)
                 revseq = seq.reverse_complement()
                 revrevfile.write(str(revseq)+"\n")
-
         revrevfile.close()
 
         catcmd = 'cat TEMP_seqlist.txt TEMP_revrev_seqlist.txt > TEMP_total_seqlist.txt'
@@ -202,7 +215,7 @@ def right_search(inputfile, seedseq, nmer, maxround):
         if a != maxround + 1:
 
             try:
-                new, extended, nt_prob, Readdf = extension(file, nmer, Rsearchseq)
+                new, extended, nt_prob, Readdf = extension(file, nmer, Rsearchseq, 'R', no_gap)
                 if len(new) == nmer:
                     sconcat = datetime.now()
                     nt_probability = pd.concat([nt_probability, pd.DataFrame(nt_prob, columns=nt_probability.columns)], ignore_index=True)
@@ -229,9 +242,8 @@ def right_search(inputfile, seedseq, nmer, maxround):
 
     return nt_probability, Reads_position, extendedseq
 
-def left_search(inputfile, seedseq, nmer, maxround):
+def left_search(inputfile, seedseq, nmer, maxround, no_gap):
     """
-
     :param inputfile: input file that we will grep
     :param seedseq: seed sequence to create initial extensions from
     :param nmer: length of sequence to extend / grep with
@@ -245,8 +257,8 @@ def left_search(inputfile, seedseq, nmer, maxround):
     Lextendedseq = ""
     search = True
     a = 1
-
     print("Extenstion from 5 prime of the seed sequence has been started.")
+    print('\n')
 
     while search == True:
 
@@ -274,7 +286,7 @@ def left_search(inputfile, seedseq, nmer, maxround):
         if a != maxround + 1:
 
             try:
-                Lnew, Lextended, Lnt_prob, LReaddf = extension(file, nmer, Lsearchseq, 'L')
+                Lnew, Lextended, Lnt_prob, LReaddf = extension(file, nmer, Lsearchseq, 'L', no_gap)
 
                 if len(Lnew) == nmer:
                     Lnt_probability = pd.concat([pd.DataFrame(Lnt_prob,  columns=Lnt_probability.columns), Lnt_probability], ignore_index=True)
@@ -303,7 +315,6 @@ def left_search(inputfile, seedseq, nmer, maxround):
 
 def get_nucleotides(input_df, nucleotide):
     """
-
     :param input_df: pd dataframe input for getting nucleotide to extend
     :param nucleotide: list of valid nucleotides
     :return: list of extended nucleotides
@@ -318,7 +329,6 @@ def get_nucleotides(input_df, nucleotide):
 
 def plot_figs(final_df, outdir):
     """
-
     :param final_df: final results df
     :param outdir: directory to output results to
     :return: None
@@ -342,20 +352,22 @@ def plot_figs(final_df, outdir):
     plt.savefig(outdir + "/MaxPercentage_basebybase.png", format="png", dpi=1500, transparent=False, facecolor="white",
                bbox_inches="tight")
 
-def main(inputfile, seedseq, nmer, maxround, outdir, process_multiple_fastq):
+def main(inputfile, seedseq, nmer, maxround, outdir, process_multiple_fastq, no_gap):
 
     Starttime=datetime.now()
     inputfile = str(inputfile)
     if process_multiple_fastq:
         preprocess(inputfile, trim=True)
         inputfile = inputfile.split()[0][:-6] + '_final_combined.fastq'
-
+    
+    print('\n')
     print('Running with seed sequence= ' + seedseq + ' and with nmer = ' + str(nmer) +
           ' initiated at ' + str(Starttime))
     nucleotide = ["A", "T", "C", "G", "N"]
     num_to_print = 60 # For writing Fasta
-    nt_probability, Reads_position, extendedseq = right_search(inputfile, seedseq, nmer, maxround)
-    Lnt_probability, LReads_position, Lextendedseq = left_search(inputfile, seedseq, nmer, maxround)
+    nt_probability, Reads_position, extendedseq = right_search(inputfile, seedseq, nmer, maxround, no_gap)
+    
+    Lnt_probability, LReads_position, Lextendedseq = left_search(inputfile, seedseq, nmer, maxround, no_gap)
 
 
     if not os.path.exists(outdir):
@@ -383,6 +395,8 @@ def main(inputfile, seedseq, nmer, maxround, outdir, process_multiple_fastq):
 
     print("Assembled sequence at both ends: ", final_assembled)
     print("Assembled sequence length: " + str(len(final_assembled)))
+    print('\n')
+
 
     final_output_file = open(outdir + "/Final_assembled.fasta", "w")
     final_output_file.write('>Final_assembled_'+ str(len(final_assembled))+"bp"+'\n')
@@ -423,10 +437,11 @@ def main(inputfile, seedseq, nmer, maxround, outdir, process_multiple_fastq):
     # Remove all intermediate files
     rmcmd = 'rm TEMP*'
     os.system(rmcmd)
-
     Endtime = datetime.now()
+    print('\n')
     print("Run has been completed at "+str(Endtime))
     print("Total run time: "+str(Endtime-Starttime))
+    print('\n')
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -449,7 +464,11 @@ if __name__=='__main__':
                         default=False,
                         help='True if input files need to be preprocessed. Must input multiple fastq files, unprocesed separated by a space (default = False)')
 
+    parser.add_argument('--no_gap', type=bool,
+                        default=False,
+                        help='True if you want to extend without using any gaps (default = False)')
+
     args = parser.parse_args()
-    main(args.input, args.seedseq, args.nmer, args.maxround, args.outdir, args.process_multiple_fastq)
+    main(args.input, args.seedseq, args.nmer, args.maxround, args.outdir, args.process_multiple_fastq, args.no_gap)
 
 
