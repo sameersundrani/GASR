@@ -46,12 +46,12 @@ python GASR.py --input '1_Mod500pgMS0pg_S1_L001_R1_001.fastq 1_Mod500pgMS0pg_S1_
 ```
 
 ### Output
-The script should take no more than 2-10 minutes to run. We have tested with large (~1 gb) input files and a variety of test input seed sequences. In the output folder specified (or `cwd` if not), we also output two figures and a 'Final_assembled_info.csv' for scrutiny. 
+The script should take no more than 2-10 minutes to run. We have tested with large (~1 gb) input files and a variety of test input seed sequences. In the output folder specified (or `cwd` if not), we also output two figures and a `Final_assembled_info.csv` for scrutiny. 
 
 The topmost figure displays a metric for confidence in sequence position up- and downstream of your input seed sequence (shown as the black bar). The bottommost figure displays the number of logFold counts of reads we see in the short read .fastq file for each sequence position up- and downstream of the seed sequence. 
 
 ![MaxPercentage_basebybase](https://user-images.githubusercontent.com/48189633/162085089-6e1ff2fb-02b6-4686-a9d6-fcd6f4aa62ce.png)
 ![Coverage_basebybase_log10TotalCounts](https://user-images.githubusercontent.com/48189633/162085080-9ac40585-f6bb-40e2-b5ec-df8cc41f6340.png)
 
-Finally, 'Final_assembled_info.csv' contains a detailed position-specific description for each base assembled. It contains a representative base column (i.e. the base with the highest consistency across reads matching the grepped sequences) as well as broken down counts and percentages of each positions possible base identity from the grepped searches.
+Finally, `Final_assembled_info.csv` contains a detailed position-specific description for each base assembled. It contains a representative base column (i.e. the base with the highest consistency across reads matching the grepped sequences) as well as broken down counts and percentages of each positions possible base identity from the grepped searches.
 
