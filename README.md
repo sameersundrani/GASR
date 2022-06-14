@@ -1,5 +1,3 @@
-# FireLab
-
 # Grep Assembler for Short Reads - *GASR*
 
 ### For inquiries, contact dejeong@stanford.edu, sundrani@stanford.edu, or afire@stanford.edu
