@@ -1,3 +1,5 @@
+![firelab_logo4](https://user-images.githubusercontent.com/48189633/173708725-f9f84d0f-d2b1-4c02-9fc4-e3d72b4cb953.png)
+
 # Grep Assembler for Short Reads - *GASR*
 
 ### For inquiries, contact dejeong@stanford.edu, sundrani@stanford.edu, or afire@stanford.edu
